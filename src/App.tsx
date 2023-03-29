@@ -5,6 +5,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QuestionForm } from "./components/QA";
 import Login from "./components/Login";
+import Signup from "./components/Signup"
 import { UserAuthContextProvider } from "./context/UserAuthContext";
 import { Navbar } from "./components/Navbar";
 
@@ -17,7 +18,7 @@ function App() {
           <Routes>
             <Route path="/home" element={<QuestionForm />} />
             <Route path="/" element={<Login />} />
-            {/* <Route path="/signup" element={<Signup />} /> */}
+            <Route path="/signup" element={<Signup />} />
           </Routes>
         </BrowserRouter>
       </UserAuthContextProvider>

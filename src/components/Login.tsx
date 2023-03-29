@@ -11,6 +11,8 @@ import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import GoogleButton from "react-google-button";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -19,23 +21,27 @@ const Login = () => {
   const { logIn, googleSignIn } = useUserAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: Event) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     try {
       await logIn(email, password);
       navigate("/home");
     } catch (err) {
-      if (err instanceof Error) setError(err.message);
+      let error = err as Error;
+      console.log(`Failed ${error.message}`);
+      setError(error.message);
     }
   };
-  const handleGoogleSignIn = async (e: Event) => {
+  const handleGoogleSignIn = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
+    console.log("Google signin..");
     try {
       await googleSignIn();
       navigate("/home");
     } catch (err) {
-      if (err instanceof Error) console.log(err.message);
+      let error = err as Error;
+      console.log(error.message);
     }
   };
   return (
@@ -51,7 +57,12 @@ const Login = () => {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <Box component="form" onSubmit={(e) => handleSubmit} noValidate sx={{ mt: 1 }}>
+        <Box
+          component="form"
+          onSubmit={(e) => handleSubmit(e)}
+          noValidate
+          sx={{ mt: 1 }}
+        >
           <TextField
             margin="normal"
             required
@@ -83,6 +94,18 @@ const Login = () => {
             sx={{ mt: 3, mb: 2 }}
           >
             Sign In
+          </Button>
+          <Divider component="div" role="presentation">
+            {/* any elements nested inside the role="presentation" preserve their semantics. */}
+            <Typography variant="h6">Or </Typography>
+          </Divider>
+          <Button
+            onClick={(e) => handleGoogleSignIn(e)}
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Sign In with Google
           </Button>
           <Grid container>
             <Grid item xs>
