@@ -1,13 +1,12 @@
-import React from "react";
-import Container from "@mui/material/Container";
 import "./App.css";
-import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QuestionForm } from "./components/QA";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
 import { UserAuthContextProvider } from "./context/UserAuthContext";
+import Container from "@mui/material/Container";
+import Forgot from "./components/Forgot";
+import Login from "./components/Login";
 import Navbar from "./components/Navbar";
+import Signup from "./components/Signup";
 
 function App() {
   return (
@@ -20,6 +19,7 @@ function App() {
             <Route path="/home" element={<QuestionForm />} />
             <Route path="/" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot" element={<Forgot />} />
           </Routes>
         </BrowserRouter>
       </UserAuthContextProvider>

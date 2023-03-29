@@ -5,8 +5,8 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
+  sendPasswordResetEmail,
   signOut,
-  Auth,
   User,
   UserCredential,
 } from "firebase/auth";
@@ -17,6 +17,7 @@ interface UserAuthContextValue {
   logIn: (email: string, password: string) => Promise<UserCredential>;
   signUp: (email: string, password: string) => Promise<UserCredential>;
   logOut: () => Promise<void>;
+  forgot: (email: string) => Promise<void>;
   googleSignIn: () => Promise<UserCredential>;
 }
 
@@ -48,6 +49,10 @@ export function UserAuthContextProvider({
     return signInWithPopup(auth, provider);
   }
 
+  function forgot(email: string) {
+    return sendPasswordResetEmail(auth, email);
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       console.log("Auth", currentUser);
@@ -64,6 +69,7 @@ export function UserAuthContextProvider({
     logIn,
     signUp,
     logOut,
+    forgot,
     googleSignIn,
   };
 
