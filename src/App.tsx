@@ -5,16 +5,17 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QuestionForm } from "./components/QA";
 import Login from "./components/Login";
-import Signup from "./components/Signup"
+import Signup from "./components/Signup";
 import { UserAuthContextProvider } from "./context/UserAuthContext";
-import { Navbar } from "./components/Navbar";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <Container maxWidth="xl" sx={{ p: "0px !important" }}>
-      <Navbar></Navbar>
       <UserAuthContextProvider>
         <BrowserRouter>
+          <Navbar />
+
           <Routes>
             <Route path="/home" element={<QuestionForm />} />
             <Route path="/" element={<Login />} />

@@ -2,30 +2,48 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserAuth } from "../context/UserAuthContext";
 
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Checkbox from "@mui/material/Checkbox";
-import Container from "@mui/material/Container";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Grid from "@mui/material/Grid";
-import Link from "@mui/material/Link";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import GoogleButton from "react-google-button";
+import {
+  Alert,
+  AlertTitle,
+  Box,
+  Button,
+  Container,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
+import Link from "./Link";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const { logIn, googleSignIn } = useUserAuth();
+  const { signUp } = useUserAuth();
   const navigate = useNavigate();
+
+  const validatePassword = () => {
+    let isValid = true;
+    if (password !== "" && confirmPassword !== "") {
+      if (password !== confirmPassword) {
+        isValid = false;
+        setError("Passwords does not match");
+      }
+    }
+    return isValid;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (!validatePassword()) {
+      console.log(`Passwords do not match  ${password} != ${confirmPassword}`);
+      setError("Passwords do not match");
+      return;
+    }
     try {
-      await logIn(email, password);
+      console.log(`Signing up ${email} with ${password}`);
+      await signUp(email, password);
       navigate("/home");
     } catch (err) {
       let error = err as Error;
@@ -33,17 +51,7 @@ const Signup = () => {
       setError(error.message);
     }
   };
-  const handleGoogleSignIn = async (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
-    console.log("Google signin..");
-    try {
-      await googleSignIn();
-      navigate("/home");
-    } catch (err) {
-      let error = err as Error;
-      console.log(error.message);
-    }
-  };
+
   return (
     <Container component="main" maxWidth="xs">
       <Box
@@ -55,7 +63,7 @@ const Signup = () => {
         }}
       >
         <Typography component="h1" variant="h5">
-          Sign in
+          Sign up
         </Typography>
         <Box
           component="form"
@@ -71,6 +79,7 @@ const Signup = () => {
             label="Email Address"
             name="email"
             autoComplete="email"
+            onChange={(e) => setEmail(e.target.value)}
             autoFocus
           />
           <TextField
@@ -81,12 +90,34 @@ const Signup = () => {
             label="Password"
             type="password"
             id="password"
+            onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
           />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="confirmPassword"
+            label="Confirm Password"
+            type="password"
+            id="confirmPassword"
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            autoComplete="current-password"
+            error={confirmPassword !== password}
+            helperText={
+              confirmPassword !== "" && confirmPassword !== password
+                ? "Passwords do not match"
+                : " "
+            }
           />
+
+          {error && (
+            <Alert severity="error">
+              <AlertTitle>Error</AlertTitle>
+              {error}
+            </Alert>
+          )}
+
           <Button
             type="submit"
             fullWidth
@@ -95,18 +126,6 @@ const Signup = () => {
           >
             Sign Up
           </Button>
-          <Divider component="div" role="presentation">
-            {/* any elements nested inside the role="presentation" preserve their semantics. */}
-            <Typography variant="h6">Or </Typography>
-          </Divider>
-          <Button
-            onClick={(e) => handleGoogleSignIn(e)}
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
-            Sign In with Google
-          </Button>
           <Grid container>
             <Grid item xs>
               <Link href="#" variant="body2">
@@ -114,8 +133,8 @@ const Signup = () => {
               </Link>
             </Grid>
             <Grid item>
-              <Link href="#" variant="body2">
-                {"Don't have an account? Sign Up"}
+              <Link href="/" variant="body2">
+                {"Login"}
               </Link>
             </Grid>
           </Grid>
