@@ -17,16 +17,14 @@ import {
   QueryDocumentSnapshot,
   CollectionReference,
 } from "firebase/firestore"
-import { UserInfo } from "firebase/auth"
 import { IEntry } from "../types/Entry.type"
-import IUser from "../types/User.type"
 
 // This is just a helper to add the type to the db responses
 const createCollection = <T = DocumentData,>(collectionName: string) => {
   return collection(firestore, collectionName) as CollectionReference<T>
 }
 
-const calculateAverageVotes = (users: Map<string, number> | null | undefined): number => {
+const calculateRating = (users: Map<string, number> | null | undefined): number => {
   if (!users)
     return 0
 
@@ -36,79 +34,59 @@ const calculateAverageVotes = (users: Map<string, number> | null | undefined): n
   return averageVotes
 }
 
-const serializeVotes = {
+const userSerializer = {
   serialize(users: Map<string, number> | null | undefined): string {
-    console.log(`Serialize firestore ${users}`)
-      
     const obj = users ? Object.fromEntries(users.entries()) : null
     return JSON.stringify(obj)
   },
-  deserialize(data: string | null)  : Map<string, number>{
-    console.log(`Deserialize firestore ${data}`)
+  deserialize(data: string | null): Map<string, number> {
     if (data && data.length > 0) return new Map(Object.entries(JSON.parse(data)))
     return new Map<string, number>()
   }
 }
 
 const entryConverter = {
-    toFirestore(entry: IEntry): DocumentData {
-      const { question, answer, context, generated_by, votes, users } = entry
-      return {
-        question: question,
-        answer: answer,
-        context: context,
-        gnerated_by: generated_by,
-        votes: votes,
-        users: serializeVotes.serialize(entry.users)
-      }
-    },
-    fromFirestore(snapshot: QueryDocumentSnapshot<DocumentData>): IEntry {
-      const data = snapshot.data()
-      const id = snapshot.id
-      const { question, answer, context, generated_by, votes, users } = data as {
-        question: string
-        answer: string
-        context: string
-        generated_by: string | null
-        votes: number
-        users: string | null
-      }
-      const userMap = serializeVotes.deserialize(users)
-      const calculatedVotes = calculateAverageVotes(userMap)
-      return {
-        id,
-        question,
-        answer,
-        context,
-        generated_by,
-        votes: calculatedVotes,
-        users: userMap
-      }
-    },
-  }
+  toFirestore(entry: IEntry): DocumentData {
+    const { question, answer, context, generated_by, users, created_by, created_by_uid } = entry
+    return {
+      question: question,
+      answer: answer,
+      context: context,
+      gnerated_by: generated_by,
+      users: userSerializer.serialize(users),
+      created_by: created_by,
+      created_by_uid: created_by_uid
+    }
+  },
+  fromFirestore(snapshot: QueryDocumentSnapshot<DocumentData>): IEntry {
+    const data = snapshot.data()
+    const id = snapshot.id
+    const { question, answer, context, generated_by, users, created_by, created_by_uid } = data as {
+      question: string
+      answer: string
+      context: string
+      generated_by: string | null
+      users: string | null,
+      created_by: string | null,
+      created_by_uid: string | null,
+    }
+    const userMap = userSerializer.deserialize(users)
+    const calculatedVotes = calculateRating(userMap)
+    return {
+      id,
+      question,
+      answer,
+      context,
+      generated_by,
+      rating: calculatedVotes,
+      users: userMap,
+      created_by: created_by ? created_by : "unknown",
+      created_by_uid: created_by_uid ? created_by_uid : "unknown"
+    }
+  },
+}
 
 const entries = createCollection<IEntry>("entries").withConverter(entryConverter)
-const users = createCollection<IUser>("users")
-
-class UserDataService {
-    async update(userEntryRef: DocumentReference<DocumentData>, entry: IEntry) {
-      return setDoc(userEntryRef, entry, { merge: true })
-    }
-
-  async create(userInfo: UserInfo) {
-  const user: IUser = {
-    user: userInfo.uid,
-    last_vote_id: "",
-  }
-  return await addDoc(users, user)
-}
-
-  async get(userInfo: UserInfo) {
-  return doc(users, userInfo.uid)
-}
-}
-
-
 
 class EntryDataService {
   async getAll(after: IEntry | null) {
@@ -116,7 +94,7 @@ class EntryDataService {
     if (after) {
       docs = query(entries, startAfter(after), limit(25))
     } else {
-      docs = query(entries, limit(25))
+      docs = query(entries)
     }
 
     return getDocs(docs)
@@ -135,8 +113,6 @@ class EntryDataService {
     singleEntryRef: DocumentReference<DocumentData>,
     entry: IEntry
   ) {
-    const averageVotes = calculateAverageVotes(entry.users)
-    entry.votes = averageVotes
     return setDoc(singleEntryRef, entry, { merge: true })
   }
 
@@ -144,12 +120,10 @@ class EntryDataService {
     if (!entry.id) {
       throw new Error(`ERROR: no id in entry: ${entry}`)
     }
-    const averageVotes = calculateAverageVotes(entry.users)
-    const data = serializeVotes.serialize(entry.users)
+    const data = userSerializer.serialize(entry.users)
     const entryRef = doc(entries, entry.id)
     console.log(`Updating ${data}`)
-    updateDoc(entryRef, { votes: averageVotes, users: data })
-
+    updateDoc(entryRef, { users: data })
   }
 
   async update(entry: IEntry) {
@@ -171,5 +145,4 @@ class EntryDataService {
 }
 
 export const entryService = new EntryDataService()
-export const userService = new UserDataService()
 export default entryService

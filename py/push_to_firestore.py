@@ -16,7 +16,8 @@ seed_instruction_data = [
             "answer": t["instances"][0]["output"].strip(),
             "context": "",
             "generated_by": None,
-            "votes": 0,
+            "created_by" : "Erwin Jansen",
+            "created_by_uid"
             "users": [],
         }
         for t in seed_tasks

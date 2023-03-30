@@ -7,15 +7,10 @@ import {
     CardContent,
     Container,
     Grid,
-    Link,
-    Rating,
     TextField,
-    Typography,
 } from "@mui/material"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Delete } from "@mui/icons-material"
-import { useParams } from "react-router-dom"
-import { useState, useEffect, useContext } from "react"
 import entrySerivce from "../services/entry.service"
 import { IEntry, emptyEntry } from "../types/Entry.type"
 import { useUserAuth } from "../context/UserAuthContext"
@@ -24,64 +19,27 @@ import { useUserAuth } from "../context/UserAuthContext"
 // the clock's state has one field: The current time, based upon the
 // JavaScript class Date
 
-const EntryView = () => {
-    const { id } = useParams()
+const CreateEntryView = () => {
     const { user } = useUserAuth()
     const [item, setItem] = useState<IEntry>(emptyEntry)
     const [error, setError] = useState("")
+
     const navigate = useNavigate()
 
-    if (!user) {
-        throw new Error(`ERROR: null 'user' in context`)
-    }
-
-    if (!id) {
-        throw new Error(`ERROR: null 'id' in context`)
-    }
-
-    const fetchData = async () => {
-        const res = await entrySerivce.get(id)
-        const data = res.data()
-        if (data) {
-            setItem(data)
-        }
-    }
-
-    const updateRating = (value: number) => {
-        let newUsers = new Map<string, number>(item.users)
-        newUsers = newUsers.set(user.uid, value)
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setItem({
             ...item,
-            rating: value,
-            users: newUsers
+            [event.target.name]: event.target.value,
         })
     }
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (item)
-            setItem({
-                ...item,
-                [event.target.name]: event.target.value,
-            })
-    }
-
-    const handleUpdate = async () => {
-        console.log(`updating ${item}`)
-        console.log(item.users)
-        try {
-            await entrySerivce.update(item)
-            navigate(-1)
-        } catch (err) {
-            let error = err as Error
-            console.log(`Failed ${error.message}`)
-            setError(error.message)
-        }
-    }
-
-    const handleDelete = async () => {
+    const handleCreate = async () => {
         console.log(`creating ${item}`)
+        item.created_by = user?.displayName ? user?.displayName : "unknown"
+        item.created_by_uid = user?.uid ? user?.uid : "unknown"
         try {
-            await entrySerivce.deleteById(item.id)
+            const doc = await entrySerivce.create(item)
+            console.log(`Written as: ${doc.id}`)
             navigate(-1)
         } catch (err) {
             let error = err as Error
@@ -89,10 +47,6 @@ const EntryView = () => {
             setError(error.message)
         }
     }
-
-    useEffect(() => {
-        fetchData()
-    }, [])
 
     return (
         <Container maxWidth="sm">
@@ -133,6 +87,7 @@ const EntryView = () => {
                                 <TextField
                                     id="context"
                                     label="Additional context surrounding the answer"
+                                    helperText="This context will be used when auto generating questions."
                                     multiline
                                     rows={4}
                                     value={item?.context}
@@ -140,36 +95,16 @@ const EntryView = () => {
                                     onChange={handleChange}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
-                                <Typography component="legend">Rating</Typography>
-                                <Rating name="simple-controlled" value={item.rating} onChange={(event, newValue) => { updateRating(newValue ? newValue : 0) }} />
-                            </Grid>
-                            <Grid item xs={6}>
-                                {item?.generated_by &&
-                                    <Link href={"/entry/" + item.generated_by} variant="body2">
-                                        {"Generated from:" + item.generated_by}
-                                    </Link>}
-                            </Grid>
+
                             {error && (
                                 <Alert severity="error">
                                     <AlertTitle>Error</AlertTitle>
                                     {error}
                                 </Alert>
                             )}
-
                             <Grid item xs={6}>
-                                <Button variant="outlined" onClick={handleUpdate}>
-                                    Update
-                                </Button>
-                            </Grid>
-                            <Grid item xs={6}>
-                                <Button
-                                    onClick={handleDelete}
-                                    variant="outlined"
-                                    startIcon={<Delete />}
-                                    color="secondary"
-                                >
-                                    Delete
+                                <Button variant="outlined" onClick={handleCreate}>
+                                    Create
                                 </Button>
                             </Grid>
                         </Grid>
@@ -180,4 +115,4 @@ const EntryView = () => {
     )
 }
 
-export default EntryView
+export default CreateEntryView

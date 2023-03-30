@@ -1,26 +1,108 @@
 import * as React from 'react'
 import { useState, useEffect } from "react"
+import { IEntry } from "../types/Entry.type"
+import { useNavigate } from "react-router-dom"
+import { useUserAuth } from "../context/UserAuthContext"
+import { useTheme } from '@mui/material/styles'
+import Box from '@mui/material/Box'
+import EditIcon from '@mui/icons-material/Edit'
+import entrySerivce from "../services/entry.service"
+import FirstPageIcon from '@mui/icons-material/FirstPage'
+import IconButton from '@mui/material/IconButton'
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft'
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
+import LastPageIcon from '@mui/icons-material/LastPage'
 import Paper from '@mui/material/Paper'
+import Rating from '@mui/material/Rating'
+import SmartToyIcon from '@mui/icons-material/SmartToy'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
+import TableFooter from "@mui/material/TableFooter"
 import TableHead from '@mui/material/TableHead'
 import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
-import Rating from '@mui/material/Rating'
-import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
-import Grid from "@mui/material/Grid"
-import TableFooter from "@mui/material/TableFooter"
-import { IEntry } from "../types/Entry.type"
-import entrySerivce from "../services/entry.service"
-import { useNavigate } from "react-router-dom"
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
-import SmartToyIcon from '@mui/icons-material/SmartToy'
-import EditIcon from '@mui/icons-material/Edit'
-import { useUserAuth } from "../context/UserAuthContext"
+import AddCircleIcon from '@mui/icons-material/AddCircle'
 
+
+interface TablePaginationActionsProps {
+  count: number
+  page: number
+  rowsPerPage: number
+  onPageChange: (
+    event: React.MouseEvent<HTMLButtonElement>,
+    newPage: number,
+  ) => void
+}
+
+function TablePaginationActions(props: TablePaginationActionsProps) {
+  const theme = useTheme()
+  const navigate = useNavigate()
+
+  const { count, page, rowsPerPage, onPageChange } = props
+
+  const handleFirstPageButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    onPageChange(event, 0)
+  }
+
+  const handleBackButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    onPageChange(event, page - 1)
+  }
+
+  const handleNextButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    onPageChange(event, page + 1)
+  }
+
+  const handleLastPageButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
+  }
+
+  const handleCreateButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    navigate(`/create`)
+  }
+
+  return (
+    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+      <IconButton
+        onClick={handleFirstPageButtonClick}
+        disabled={page === 0}
+        aria-label="first page"
+      >
+        {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
+      </IconButton>
+      <IconButton
+        onClick={handleBackButtonClick}
+        disabled={page === 0}
+        aria-label="previous page"
+      >
+        {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+      </IconButton>
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="next page"
+      >
+        {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+      </IconButton>
+      <IconButton
+        onClick={handleLastPageButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="last page"
+      >
+        {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
+      </IconButton>
+      <IconButton
+        onClick={handleCreateButtonClick}
+      >
+        <AddCircleIcon />
+      </IconButton>
+    </Box>
+  )
+}
 
 export default function StickyHeadTable() {
   const [page, setPage] = React.useState(0)
@@ -69,7 +151,7 @@ export default function StickyHeadTable() {
   }
 
   const updateRating = async (entry: IEntry, value: number) => {
-    console.log(`${entry.id}  ${entry.votes} --> ${value}`)
+    console.log(`${entry.id}  ${entry.rating} --> ${value}`)
     let newUsers = new Map<string, number>(entry.users)
     newUsers = newUsers.set(user.uid, value)
     entry.users = newUsers
@@ -79,7 +161,7 @@ export default function StickyHeadTable() {
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <TableContainer sx={{ maxHeight: 440 }}>
+      <TableContainer>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
@@ -94,33 +176,20 @@ export default function StickyHeadTable() {
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row) => {
                 return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.generated_by}>
-                    <TableCell key={row.question}>
+                  <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                    <TableCell >
                       <Typography variant="body1">{row.question}</Typography>
                       <Typography variant="caption">{row.answer}</Typography>
-                      {/* <Grid container direction="column">
-                        <Grid item>{row.question}</Grid>
-                        <Grid item>{row.answer}</Grid>
-                      </Grid> */}
                     </TableCell>
                     {/*   */}
-                    <TableCell key={row.votes}><Rating name="simple-controlled" value={row.users?.get(user?.uid)} onChange={(event, newValue) => { updateRating(row, newValue ? newValue : 0) }} /> </TableCell>
-                    <TableCell key={row.generated_by} align="right">
+                    <TableCell><Rating name="simple-controlled" value={row.users?.get(user?.uid)} onChange={(event, newValue) => { updateRating(row, newValue ? newValue : 0) }} /> </TableCell>
+                    <TableCell align="right">
                       {row.generated_by && <SmartToyIcon />}
                     </TableCell>
-                    <TableCell key={row.context} align="right">
-                      <Grid container>
-                        <Grid item>
-                          <IconButton onClick={(e) => editItem(row.id!)} color="primary" aria-label="edit" component="label">
-                            <EditIcon />
-                          </IconButton>
-                        </Grid>
-                        <Grid item>
-                          <IconButton onClick={(e) => deleteItem(row.id!)} color="primary" aria-label="delete" component="label">
-                            <DeleteForeverIcon />
-                          </IconButton>
-                        </Grid>
-                      </Grid>
+                    <TableCell align="right">
+                      <IconButton onClick={(e) => editItem(row.id!)} color="primary" aria-label="edit" component="label">
+                        <EditIcon />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 )
@@ -131,13 +200,20 @@ export default function StickyHeadTable() {
       <TableFooter>
         <TableRow>
           <TablePagination
-            rowsPerPageOptions={[10, 25, 100]}
-            component="div"
+            rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+            colSpan={3}
             count={items.length}
             rowsPerPage={rowsPerPage}
             page={page}
+            SelectProps={{
+              inputProps: {
+                'aria-label': 'rows per page',
+              },
+              native: true,
+            }}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
+            ActionsComponent={TablePaginationActions}
           />
         </TableRow>
       </TableFooter>

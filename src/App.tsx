@@ -1,17 +1,15 @@
 import "./App.css"
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom"
-import { QuestionForm } from "./components/QA"
 import { UserAuthContextProvider } from "./context/UserAuthContext"
 import Container from "@mui/material/Container"
 import Forgot from "./components/Forgot"
 import Login from "./components/Login"
 import Navbar from "./components/Navbar"
 import Signup from "./components/Signup"
-import ItemList from "./components/ItemList"
 import EntryView from "./components/Entry"
 import EntryTable from "./components/EntryTable"
 import { useUserAuth } from "./context/UserAuthContext"
-import { User } from "firebase/auth"
+import CreateEntryView from './components/Create'
 
 
 interface ProtectedRouteProps {
@@ -29,7 +27,7 @@ const ProtectedRoute = ({
     return <Navigate to={redirectPath} replace />
   }
 
-  return <Outlet/>
+  return <Outlet />
   // return children ? children : <Outlet />
 }
 
@@ -45,6 +43,7 @@ function App() {
             <Route path="/forgot" element={<Forgot />} />
             <Route element={<ProtectedRoute redirectPath="/" />}>å
               <Route path="/home" element={<EntryTable />} />
+              <Route path="/create" element={<CreateEntryView />} />
               <Route path="/entry/:id" element={<EntryView />} />
             </Route>
           </Routes>
