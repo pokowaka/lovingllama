@@ -57,12 +57,7 @@ export class QuestionForm extends Component<{}, ClockState> {
                 </Grid>
 
                 <Grid item xs={6}>
-                  <Button variant="outlined">Update</Button>
-                </Grid>
-                <Grid item xs={6} >
-                  <Button variant="outlined" startIcon={<Delete />} color="secondary">
-                    Delete
-                  </Button>
+                  <Button variant="outlined">Create</Button>
                 </Grid>
               </Grid>
             </Box>

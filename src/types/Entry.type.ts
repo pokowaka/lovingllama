@@ -1,6 +1,6 @@
-export default interface IEntry {
+export interface IEntry {
   // Id of this item
-  id?: string | null;
+  id: string | null;
 
   // The question
   question: string;
@@ -25,5 +25,15 @@ export default interface IEntry {
 
   // Users that have rated this item, mainly used to track
   // who has already voted for things.
-  users: string[];
+  users?: Map<string, number> | null;
 }
+
+export const emptyEntry: IEntry = {
+  id: "",
+  question: "",
+  answer: "",
+  context: "",
+  generated_by: null,
+  votes: 0,
+  users: new Map<string, number>(),
+};

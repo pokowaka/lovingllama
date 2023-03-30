@@ -21,8 +21,10 @@ interface UserAuthContextValue {
   googleSignIn: () => Promise<UserCredential>;
 }
 
+// This should enable us to use simple login..
 const provider = new GoogleAuthProvider();
-provider.addScope("https://www.googleapis.com/auth/contacts.readonly");
+provider.addScope('profile');
+provider.addScope('email');
 
 const userAuthContext = createContext<UserAuthContextValue | undefined>(
   undefined

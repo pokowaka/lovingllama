@@ -25,8 +25,8 @@ const Navbar = () => {
   
   const [anchorElNav, setAnchorElNav] = useState<HTMLElement | null>(null);
   const [anchorElUser, setAnchorElUser] = useState<HTMLElement | null>(null);
-
-  const pages = ["Products", "Pricing", "Blog"];
+  const { user } = useUserAuth();
+  const pages = ["About" ];
   const settings = ["Logout"];
   const { logOut } = useUserAuth();
   const navigate = useNavigate();
@@ -121,7 +121,7 @@ const Navbar = () => {
             component="div"
             sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}
           >
-            React Material UI
+            LLama Metta Trainer
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
@@ -138,7 +138,7 @@ const Navbar = () => {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Some User" src="/static/images/avatar/2.jpg" />
+                <Avatar alt={user?.displayName ? user?.displayName : "Unknown"} src={user?.photoURL ? user.photoURL : "" } />
               </IconButton>
             </Tooltip>
             <Menu

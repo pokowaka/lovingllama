@@ -1,20 +1,64 @@
-import React from "react";
+
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
-  makeStyles,
+  ListItemButton,
   Typography,
   List,
   ListItem,
   ListItemText,
 } from "@mui/material";
-import IEntry from "../types/Entry.type";
+import { IEntry } from "../types/Entry.type";
+import entrySerivce from "../services/entry.service";
+import { useNavigate } from "react-router-dom";
 
-interface Props {
-  items: IEntry[];
-}
 
-function ItemList({ items }: Props) {
+interface SingleItemProps {
+    primaryText: string;
+    secondaryText: string;
+    maxLen: number
+  }
+  
+function SingleItem({ primaryText, secondaryText, maxLen } : SingleItemProps) {
+    const truncatedText = secondaryText.length > maxLen
+      ? `${secondaryText.slice(0, maxLen)}...`
+      : secondaryText;
+  
+    return (
+      <ListItem>
+        <ListItemText primary={primaryText} secondary={truncatedText} />
+      </ListItem>
+    );
+  }
+
+function ItemList() {
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState<IEntry[]>([]);
+  const navigate = useNavigate();
+  const fetchData = async () => {
+    setLoading(true);
+
+    const res = await entrySerivce.getAll(null);
+    const items: IEntry[] = [];
+    res.forEach((entry) => {
+      let item = entry.data();
+      items.push(item);
+    });
+    setItems(items);
+    setLoading(false);
+  };
+
+  const handleClick = (item: IEntry) => () => {
+    console.log(`Clicked on ${item.id}`)
+    navigate(`/entry/${item.id}`);
+  }
+
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <Card>
       <CardContent>
@@ -22,10 +66,10 @@ function ItemList({ items }: Props) {
           Item List
         </Typography>
         <List>
-          {items.map((item) => (
-            <ListItem key={item.id}>
-              <ListItemText primary={item.question} secondary={item.votes} />
-            </ListItem>
+          {items.map((item: IEntry) => (
+            <ListItemButton key={item.id} onClick={handleClick(item)}>
+              <SingleItem primaryText={item.question} secondaryText={item.answer} maxLen={120}/>
+            </ListItemButton>
           ))}
         </List>
       </CardContent>
