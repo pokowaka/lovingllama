@@ -6,10 +6,11 @@ import Forgot from "./components/Forgot"
 import Login from "./components/Login"
 import Navbar from "./components/Navbar"
 import Signup from "./components/Signup"
-import EntryView from "./components/Entry"
+import EntryView, {EntryViewWrapper} from "./components/Entry"
 import EntryTable from "./components/EntryTable"
 import { useUserAuth } from "./context/UserAuthContext"
 import CreateEntryView from './components/Create'
+import About from './components/About'
 
 
 interface ProtectedRouteProps {
@@ -20,15 +21,12 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({
   redirectPath = '/landing',
 }: ProtectedRouteProps) => {
-
   const { user } = useUserAuth()
-
   if (!user) {
     return <Navigate to={redirectPath} replace />
   }
 
   return <Outlet />
-  // return children ? children : <Outlet />
 }
 
 function App() {
@@ -41,10 +39,11 @@ function App() {
             <Route path="/" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot" element={<Forgot />} />
-            <Route element={<ProtectedRoute redirectPath="/" />}>å
+            <Route path="/about" element={<About />} />
+            <Route element={<ProtectedRoute redirectPath="/" />}>
               <Route path="/home" element={<EntryTable />} />
               <Route path="/create" element={<CreateEntryView />} />
-              <Route path="/entry/:id" element={<EntryView />} />
+              <Route path="/entry/:id" element={<EntryViewWrapper />} />
             </Route>
           </Routes>
         </BrowserRouter>

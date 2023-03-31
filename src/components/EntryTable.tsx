@@ -25,7 +25,7 @@ import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
-
+import { CircularProgress, Backdrop } from '@mui/material'
 
 interface TablePaginationActionsProps {
   count: number
@@ -108,6 +108,7 @@ export default function StickyHeadTable() {
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(10)
   const [items, setItems] = useState<IEntry[]>([])
+  const [loading, setLoading] = useState(false)
   const { user } = useUserAuth()
   const navigate = useNavigate()
 
@@ -116,6 +117,7 @@ export default function StickyHeadTable() {
   }
 
   const fetchData = async () => {
+    setLoading(true)
     const res = await entrySerivce.getAll(null)
     const items: IEntry[] = []
     res.forEach((entry) => {
@@ -125,6 +127,7 @@ export default function StickyHeadTable() {
 
     console.log("Got items.")
     setItems(items)
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -138,11 +141,6 @@ export default function StickyHeadTable() {
 
   const editItem = (id: string) => {
     navigate(`/entry/${id}`)
-  }
-
-  const deleteItem = async (id: string) => {
-    await entrySerivce.deleteById(id)
-    fetchData()
   }
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,6 +159,9 @@ export default function StickyHeadTable() {
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+      <Backdrop open={loading}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <TableContainer>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -177,12 +178,13 @@ export default function StickyHeadTable() {
               .map((row) => {
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                    <TableCell >
+                    <TableCell>
                       <Typography variant="body1">{row.question}</Typography>
                       <Typography variant="caption">{row.answer}</Typography>
                     </TableCell>
-                    {/*   */}
-                    <TableCell><Rating name="simple-controlled" value={row.users?.get(user?.uid)} onChange={(event, newValue) => { updateRating(row, newValue ? newValue : 0) }} /> </TableCell>
+                    <TableCell>
+                      <Rating name="simple-controlled" value={row.users?.get(user?.uid)} onChange={(event, newValue) => { updateRating(row, newValue ? newValue : 0) }} />
+                    </TableCell>
                     <TableCell align="right">
                       {row.generated_by && <SmartToyIcon />}
                     </TableCell>

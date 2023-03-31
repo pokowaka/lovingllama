@@ -7,11 +7,13 @@ import {
     CardContent,
     Container,
     Grid,
-    Link,
     Rating,
     TextField,
     Typography,
+    Backdrop,
+    CircularProgress
 } from "@mui/material"
+import Link from "./Link"
 import { useNavigate } from "react-router-dom"
 import { Delete } from "@mui/icons-material"
 import { useParams } from "react-router-dom"
@@ -19,7 +21,6 @@ import { useState, useEffect, useContext } from "react"
 import entrySerivce from "../services/entry.service"
 import { IEntry, emptyEntry } from "../types/Entry.type"
 import { useUserAuth } from "../context/UserAuthContext"
-
 
 // the clock's state has one field: The current time, based upon the
 // JavaScript class Date
@@ -29,6 +30,7 @@ const EntryView = () => {
     const { user } = useUserAuth()
     const [item, setItem] = useState<IEntry>(emptyEntry)
     const [error, setError] = useState("")
+    const [network, setNetwork] = useState(false)
     const navigate = useNavigate()
 
     if (!user) {
@@ -40,11 +42,13 @@ const EntryView = () => {
     }
 
     const fetchData = async () => {
+        setNetwork(true)
         const res = await entrySerivce.get(id)
         const data = res.data()
         if (data) {
             setItem(data)
         }
+        setNetwork(false)
     }
 
     const updateRating = (value: number) => {
@@ -58,20 +62,22 @@ const EntryView = () => {
     }
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (item)
-            setItem({
-                ...item,
-                [event.target.name]: event.target.value,
-            })
+        setItem({
+            ...item,
+            [event.target.name]: event.target.value,
+        })
     }
 
     const handleUpdate = async () => {
         console.log(`updating ${item}`)
         console.log(item.users)
+        setNetwork(true)
         try {
             await entrySerivce.update(item)
+            setNetwork(false)
             navigate(-1)
         } catch (err) {
+            setNetwork(false)
             let error = err as Error
             console.log(`Failed ${error.message}`)
             setError(error.message)
@@ -79,19 +85,27 @@ const EntryView = () => {
     }
 
     const handleDelete = async () => {
-        console.log(`creating ${item}`)
+        console.log(`deleting ${item}`)
+        setNetwork(true)
         try {
             await entrySerivce.deleteById(item.id)
+            setNetwork(false)
             navigate(-1)
         } catch (err) {
             let error = err as Error
             console.log(`Failed ${error.message}`)
             setError(error.message)
+            setNetwork(false)
         }
     }
 
     useEffect(() => {
+        console.log(`Use effect called: ${id}!`)
         fetchData()
+        return () => {
+            // Anything in here is fired on component unmount.
+            console.log(`Unmount ${id}`)
+        }
     }, [])
 
     return (
@@ -157,6 +171,9 @@ const EntryView = () => {
                                 </Alert>
                             )}
 
+                            <Backdrop open={network}>
+                                <CircularProgress color="inherit" />
+                            </Backdrop>
                             <Grid item xs={6}>
                                 <Button variant="outlined" onClick={handleUpdate}>
                                     Update
@@ -179,5 +196,11 @@ const EntryView = () => {
         </Container>
     )
 }
+
+export const EntryViewWrapper = () => {
+    const { id } = useParams();
+  
+    return <EntryView key={id} />
+  };
 
 export default EntryView

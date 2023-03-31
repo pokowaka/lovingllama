@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from "react"
 import {
   AppBar,
   Avatar,
@@ -11,60 +11,60 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
+} from "@mui/material"
+import MenuIcon from "@mui/icons-material/Menu"
 import { useUserAuth } from "../context/UserAuthContext"
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"
 
 interface NavbarState {
-  anchorElNav: HTMLElement | null;
-  anchorElUser: HTMLElement | null;
+  anchorElNav: HTMLElement | null
+  anchorElUser: HTMLElement | null
 }
 
 const Navbar = () => {
-  
-  const [anchorElNav, setAnchorElNav] = useState<HTMLElement | null>(null);
-  const [anchorElUser, setAnchorElUser] = useState<HTMLElement | null>(null);
-  const { user } = useUserAuth();
-  const pages = ["About" ];
-  const settings = ["Logout"];
-  const { logOut } = useUserAuth();
-  const navigate = useNavigate();
+
+  const [anchorElNav, setAnchorElNav] = useState<HTMLElement | null>(null)
+  const [anchorElUser, setAnchorElUser] = useState<HTMLElement | null>(null)
+  const { user } = useUserAuth()
+  const pages = ["About"]
+  const settings = ["Logout"]
+  const { logOut } = useUserAuth()
+  const navigate = useNavigate()
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
+    setAnchorElNav(event.currentTarget)
+  }
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
+    setAnchorElUser(event.currentTarget)
+  }
 
   const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
+    setAnchorElNav(null)
+  }
 
-  const  handleMenuItem = async (item: string) => {
+  const handleMenuItem = async (item: string) => {
     switch (item) {
       case "Logout":
         try {
-          await logOut();
-          navigate("/");
+          await logOut()
+          navigate("/")
         } catch (err) {
-          let error = err as Error;
-          console.log(`Failed ${error.message}`);
-          navigate("/");
+          let error = err as Error
+          console.log(`Failed ${error.message}`)
+          navigate("/")
           // setError(error.message);
         }
       // Call the appropriate function from userAuth here.
     }
-  };
+  }
 
   const handleCloseUserMenu = () => {
     // logOut();
-    console.log(anchorElUser);
+    console.log(anchorElUser)
 
-    setAnchorElUser(null);
-  };
+    setAnchorElUser(null)
+  }
 
   return (
     <AppBar position="static">
@@ -108,11 +108,12 @@ const Navbar = () => {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
+              <MenuItem key="about" onClick={() => navigate("/about")}>
+                <Typography textAlign="center">About</Typography>
+              </MenuItem>
+              <MenuItem key="items" onClick={() => navigate("/home")}>
+                <Typography textAlign="center">Items</Typography>
+              </MenuItem>
             </Menu>
           </Box>
           <Typography
@@ -138,7 +139,7 @@ const Navbar = () => {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={user?.displayName ? user?.displayName : "Unknown"} src={user?.photoURL ? user.photoURL : "" } />
+                <Avatar alt={user?.displayName ? user?.displayName : "Unknown"} src={user?.photoURL ? user.photoURL : ""} />
               </IconButton>
             </Tooltip>
             <Menu
@@ -167,8 +168,8 @@ const Navbar = () => {
         </Toolbar>
       </Container>
     </AppBar>
-  );
-};
+  )
+}
 
 
-export default Navbar;
+export default Navbar
