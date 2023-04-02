@@ -44,7 +44,7 @@ const Signup = () => {
     try {
       console.log(`Signing up ${email} with ${password}`);
       await signUp(email, password);
-      navigate("/home");
+      navigate("/");
     } catch (err) {
       let error = err as Error;
       console.log(`Failed ${error.message}`);

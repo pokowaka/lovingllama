@@ -7,8 +7,11 @@ import {
   signInWithPopup,
   sendPasswordResetEmail,
   signOut,
+  setPersistence,
   User,
   UserCredential,
+  inMemoryPersistence,
+  browserSessionPersistence,
 } from "firebase/auth";
 import { auth } from "../config/firebase";
 
@@ -26,9 +29,11 @@ const provider = new GoogleAuthProvider();
 provider.addScope('profile');
 provider.addScope('email');
 
+
 const userAuthContext = createContext<UserAuthContextValue | undefined>(
   undefined
 );
+
 
 export function UserAuthContextProvider({
   children,
@@ -37,7 +42,8 @@ export function UserAuthContextProvider({
 }) {
   const [user, setUser] = useState<User | null>(null);
 
-  function logIn(email: string, password: string) {
+  async function  logIn(email: string, password: string) {
+    await setPersistence(auth, browserSessionPersistence)
     return signInWithEmailAndPassword(auth, email, password);
   }
   function signUp(email: string, password: string) {
@@ -47,7 +53,8 @@ export function UserAuthContextProvider({
     return signOut(auth);
   }
 
-  function googleSignIn() {
+  async function googleSignIn() {
+    await setPersistence(auth, browserSessionPersistence)
     return signInWithPopup(auth, provider);
   }
 
@@ -57,7 +64,7 @@ export function UserAuthContextProvider({
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      console.log("Auth", currentUser);
+      console.log("Auth: ", currentUser);
       setUser(currentUser);
     });
 
@@ -65,6 +72,8 @@ export function UserAuthContextProvider({
       unsubscribe();
     };
   }, []);
+
+
 
   const value: UserAuthContextValue = {
     user,
@@ -82,7 +91,7 @@ export function UserAuthContextProvider({
   );
 }
 
-export function useUserAuth() {
+export function   useUserAuth() {
   const context = useContext(userAuthContext);
   if (context === undefined) {
     throw new Error(

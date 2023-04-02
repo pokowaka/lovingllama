@@ -111,7 +111,7 @@ const Navbar = () => {
               <MenuItem key="about" onClick={() => navigate("/about")}>
                 <Typography textAlign="center">About</Typography>
               </MenuItem>
-              <MenuItem key="items" onClick={() => navigate("/home")}>
+              <MenuItem key="items" onClick={() => navigate("/entries")}>
                 <Typography textAlign="center">Items</Typography>
               </MenuItem>
             </Menu>

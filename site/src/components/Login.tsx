@@ -30,7 +30,7 @@ const Login = () => {
     setError("");
     try {
       await logIn(email, password);
-      navigate("/home");
+      navigate("/entries");
     } catch (err) {
       let error = err as Error;
       console.log(`Failed ${error.message}`);
@@ -42,7 +42,7 @@ const Login = () => {
     console.log("Google signin..");
     try {
       await googleSignIn();
-      navigate("/home");
+      navigate("/entries");
     } catch (err) {
       let error = err as Error;
       console.log(error.message);

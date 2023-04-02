@@ -120,12 +120,15 @@ def openai_completion(
                     time.sleep(sleep_time)  # Annoying rate limit on requests.
 
     if return_text:
+        logging.info("Returning text in array")
         completions = [completion.text for completion in completions]
     if decoding_args.n > 1:
+        logging.info("Nested list")
         # make completions a nested list, where each entry is a consecutive decoding_args.n of original entries.
         completions = [completions[i : i + decoding_args.n] for i in range(0, len(completions), decoding_args.n)]
     if is_single_prompt:
         # Return non-tuple if only 1 input and 1 generation.
+        logging.info("Return non-tuple if only 1 input and 1 generation.")
         (completions,) = completions
     return completions
 

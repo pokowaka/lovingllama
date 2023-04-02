@@ -25,6 +25,7 @@ import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
+import Tooltip from '@mui/material/Tooltip'
 import { CircularProgress, Backdrop } from '@mui/material'
 
 interface TablePaginationActionsProps {
@@ -183,15 +184,19 @@ export default function StickyHeadTable() {
                       <Typography variant="caption">{row.answer}</Typography>
                     </TableCell>
                     <TableCell>
+                      <Tooltip title="Your rating of this Q&A">
                       <Rating name="simple-controlled" value={row.users?.get(user?.uid)} onChange={(event, newValue) => { updateRating(row, newValue ? newValue : 0) }} />
+                      </Tooltip>
                     </TableCell>
                     <TableCell align="right">
-                      {row.generated_by && <SmartToyIcon />}
+                      {row.generated_by && <Tooltip title="This is AI generated"><SmartToyIcon /></Tooltip>}
                     </TableCell>
                     <TableCell align="right">
+                    <Tooltip title="Edit or Delete this entry">
                       <IconButton onClick={(e) => editItem(row.id!)} color="primary" aria-label="edit" component="label">
                         <EditIcon />
                       </IconButton>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 )

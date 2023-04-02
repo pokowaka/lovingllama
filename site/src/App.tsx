@@ -23,7 +23,7 @@ const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const { user } = useUserAuth()
   if (!user) {
-    return <Navigate to={redirectPath} replace />
+    return <Login />
   }
 
   return <Outlet />
@@ -41,7 +41,7 @@ function App() {
             <Route path="/forgot" element={<Forgot />} />
             <Route path="/about" element={<About />} />
             <Route element={<ProtectedRoute redirectPath="/" />}>
-              <Route path="/home" element={<EntryTable />} />
+              <Route path="/entries" element={<EntryTable />} />
               <Route path="/create" element={<CreateEntryView />} />
               <Route path="/entry/:id" element={<EntryViewWrapper />} />
             </Route>
