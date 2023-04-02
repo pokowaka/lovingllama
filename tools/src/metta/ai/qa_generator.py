@@ -28,14 +28,12 @@ class ChatGPTQAGenerator:
 
     def __init__(self, prompt="", model_name="gpt-3.5-turbo", max_tokens=4097) -> None:
         self.model = model_name
-        self.starting_prompt = prompt
+        self.starting_prompt = open(prompt, "r", encoding="utf-8").read()
         self.max_tokens = max_tokens
 
     def _encode_messages(self, source_text: str) -> List[Dict]:
         """Encode multiple prompt instructions into a message for ChatGPT."""
         prompt = self.starting_prompt + "\n"
-        prompt += "Questions should start with a number.\n"
-        prompt += "The answers should come from the text below and start with a -\n"
         prompt += source_text
         return [{"role": "user", "content": prompt}]
 

@@ -87,8 +87,8 @@ def get(id: str):
 @cli.command
 @click.option(
     "--prompt",
-    default="Generate 20 numbered questions and answers",
-    help="prompt prefix to use",
+    default="prompt.txt",
+    help="The prompt prefix file to use.",
 )
 @click.argument("id")
 @click.option(
@@ -119,8 +119,8 @@ def generate(prompt: str, id: str, save: bool):
 )
 @click.option(
     "--prompt",
-    default="Generate 20 numbered questions and answers",
-    help="prompt prefix to use",
+    default="prompt.txt",
+    help="The prompt prefix file to use.",
 )
 @click.argument("field")
 @click.argument("op_string")

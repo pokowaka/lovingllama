@@ -1,0 +1,7 @@
+Generate 20 numbered questions and answers
+Questions should not include 'according the text' or similar
+Do not include questions that can only be answered if you have this text
+The answers should only come from the text.
+Use the following format:
+1. Question
+- Answer

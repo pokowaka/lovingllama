@@ -74,7 +74,9 @@ class Entry:
         }
 
     def __str__(self):
-        return f"Entry(id='{self.id}', question='{self.question}', answer='{self.answer}', context='{self.context}', generated_by='{self.generated_by}', users={self.users}, created_by='{self.created_by}', created_by_uid='{self.created_by_uid}', rating={self.rating})"
+        if self.id:
+            return f"Entry(id='{self.id}', question='{self.question}', answer='{self.answer}', context='{self.context}', generated_by='{self.generated_by}', users={self.users}, created_by='{self.created_by}', created_by_uid='{self.created_by_uid}', rating={self.rating})"
+        return f"Q: {self.question},  A: {self.answer}"
 
     @classmethod
     def from_doc(cls, doc: DocumentReference) -> "Entry":
